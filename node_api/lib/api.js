@@ -2,24 +2,23 @@ var {
 	iz
 } = require("./axios.js");
 var {
-	read,
 	replace
 } = require("./file.js")
 const cheerio = require('cheerio');
 var getDataByTime = async function(time,file_name) {
 	var url = "/search?f%5B0%5D=created%3A" + time + "&f%5B1%5D=type%3Avideo";
 	var gl_data = [];
-	//console.log("获取页数中。。。。")
+	console.log("获取页数中。。。。")
 	var iz_result = await iz.get(url);
 	if (!iz_result || !iz_result.data) {
-		//console.log("请求失败,请检查网络");
+		console.log("请求失败,请检查网络");
 		return;
 	}
 	var $ = cheerio.load(iz_result.data);
 	var last_page = parseInt($('.pager-last.last').find("a").attr("href").split("=").pop());
-	//console.log("页数为" + last_page)
+	console.log("页数为" + last_page)
 	for (var page = 0; page <= last_page; page++) {
-		//console.log("第" + page + "页处理中")
+		console.log("第" + page + "页处理中")
 		try {
 			iz_result = await iz.get(url + "&page=" + page);
 		} catch (e) {
@@ -33,13 +32,14 @@ var getDataByTime = async function(time,file_name) {
 			return;
 		}
 		$ = cheerio.load(iz_result.data);
-		$('.views-column').each(function(i, elem) {
+		$('.views-column').each(function() {
+            
 			var title = $(this).find(".title").find("a").text();
 			var auth = $(this).find(".username").text()
 			var time = $(this).find(".submitted").contents().eq(2).text().replace(" 作成日:","");
 			var view = $(this).find(".video-info").contents().eq(2).text().replace(",", "");
 			var img_url = $(this).find(".field-item.even").find("img").attr("src").replace("//i.iwara.tv/sites/default/files/styles/thumbnail/public/videos/thumbnails","")
-			//console.log(time + "  " + view);
+			console.log(time + "  " + view);
 			gl_data.push({
 				"title":title,
 				'auth':auth,
@@ -50,7 +50,7 @@ var getDataByTime = async function(time,file_name) {
 			});
 		});
 		
-		//console.log("第" + page + "页处理完成");
+		console.log("第" + page + "页处理完成");
 	}
 	replace(file_name,gl_data);
 	return gl_data;
