@@ -33,12 +33,16 @@ var getDataByTime = async function(time,file_name) {
 		}
 		$ = cheerio.load(iz_result.data);
 		$('.views-column').each(function() {
-            
 			var title = $(this).find(".title").find("a").text();
 			var auth = $(this).find(".username").text()
 			var time = $(this).find(".submitted").contents().eq(2).text().replace(" 作成日:","");
 			var view = $(this).find(".video-info").contents().eq(2).text().replace(",", "");
-			var img_url = $(this).find(".field-item.even").find("img").attr("src").replace("//i.iwara.tv/sites/default/files/styles/thumbnail/public/videos/thumbnails","")
+            var attr_src =  $(this).find(".field-item.even").find("img").attr("src")
+            if(attr_src){
+                var img_url = attr_src.replace("//i.iwara.tv/sites/default/files/styles/thumbnail/public/videos/thumbnails","")
+            }else{
+                var img_url = ""
+            }
 			console.log(time + "  " + view);
 			gl_data.push({
 				"title":title,

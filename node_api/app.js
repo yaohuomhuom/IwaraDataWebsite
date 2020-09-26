@@ -4,7 +4,8 @@ var app = express();
 var {
 	read
 } = require("./lib/file.js");
-var res_data = read("now_data")
+var day_data = read("now_data");
+var month_data = read("month_data")
 require('express-ws')(app);
 var ws_list = [];
 
@@ -13,24 +14,42 @@ var day = async function(file_name) {
     var date = new Date();
     //console.log(date.toISOString().split("T"));
     var time = date.toISOString().split("T")[0];
-    res_data = await api.getDataByTime(time, file_name);
+    day_data = await api.getDataByTime(time, file_name);
     ws_list.forEach((v) => {
-        v.ws.send(JSON.stringify({name:"set",list:res_data}));
+        v.ws.send(JSON.stringify({name:"day",list:day_data}));
     })
 }
-day("now_data");
-setInterval(day, 1000 * 30, "now_data")
-
+var month = async function(file_name) {
+    console.log("开始请求。。。")
+    var date = new Date();
+    //console.log(date.toISOString().split("T"));
+    var time = date.toISOString().split("-")[0]+"-"+date.toISOString().split("-")[1];
+    console.log(time);
+    month_data = await api.getDataByTime(time, file_name);
+    ws_list.forEach((v) => {
+        v.ws.send(JSON.stringify({name:"month",list:month_data}));
+    })
+}/* 
+day("now_data"); */
+/* setInterval(day, 1000 * 30, "now_data") */
+/* month("month_data");
+ */
 app.ws('/ws', function(ws, req) {
     console.log(req.query);
-    //ws.send(JSON.stringify(res_data));
-    ws.send(JSON.stringify({name:"init",list:res_data}));
+    //ws.send(JSON.stringify(day_data));
+    //ws.send(JSON.stringify({name:"init",list:day_data}));
     ws.on('message', function (msg) {
        if(msg == "ping"){
          ws.send("pong");
          return;
        }
-       ws.send(msg);
+       var data = JSON.parse(msg);
+       if(data&&data.name == 'day'){
+           ws.send(JSON.stringify({name:"day",list:day_data}));
+       }else if(data&&data.name == 'month'){
+           ws.send(JSON.stringify({name:"month",list:month_data}));
+       }
+           
     })
     ws_list.push({
         "ws": ws,
