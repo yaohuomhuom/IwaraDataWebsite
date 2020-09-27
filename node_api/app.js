@@ -37,7 +37,7 @@ day("now_data"); */
 app.ws('/ws', function(ws, req) {
     console.log(req.query);
     //ws.send(JSON.stringify(day_data));
-    //ws.send(JSON.stringify({name:"init",list:day_data}));
+    ws.send(JSON.stringify({name:"init",day:day_data,month:month_data}));
     ws.on('message', function (msg) {
        if(msg == "ping"){
          ws.send("pong");
