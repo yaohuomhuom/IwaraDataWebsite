@@ -18,7 +18,7 @@
                     _data_options.tooltip.formatter = this.data_options.tooltip.formatter;
                 }
                 _data_options.toolbox.feature = this.data_options.toolbox.feature;
-                _data_options.series = JSON.parse(JSON.stringify(this.series_list));
+                _data_options.series = Object.assign(this.series_list);
                 return _data_options;
             }
         },
@@ -29,7 +29,8 @@
                 show_data: [],
                 list_x: [],
                 series_list: [],
-                series_style: {
+                series_line:{color: "#8785a2"},
+                series_bar: {
                     color: "#ff80b0",
                     itemStyle: {
                         barBorderRadius: [20, 20, 0, 0]
@@ -38,10 +39,23 @@
                     backgroundStyle: {
                         color: '#ffe2e2'
                     },
-                    label: {
-                        position: 'top'
+                    markPoint: {
+                        symbolSize:(v)=>{
+                           var long = (v.toString().length+1)*12;
+                            return [long,long]
+                        },
+                        data: [{
+                            type: "max"
+                        }],
+                        symbol: "pin",
                     },
-                    barWidth:"80%" 
+                    markLine: {
+                        data: [{
+                            type: "average"
+                        }],
+                        symbol: "pin",
+                    },
+                    barWidth: "80%"
                 },
                 data_options: {
                     dataZoom: [{
@@ -67,13 +81,13 @@
                     xAxis: [],
                     yAxis: [],
                     series: [],
-                    backgroundColor: "#ffc7c7"
+                    backgroundColor: "#ffc7c7",
                 }
             }
         },
         methods: {
-            onClick(params) {
-                window.open("https://ecchi.iwara.tv" + params.data.url)
+            onClick() {
+                //window.open("https://ecchi.iwara.tv" + params.data.url)
             },
             sortData(name, way, func) {
                 var _find_ = this.series_list.findIndex((v) => {
@@ -100,8 +114,8 @@
                 });
                 this.setDataByObject(this.org_data[find_org_index].data, this.charts, name);
             },
-            initDataByObject(org_data, charts, name) {
-                
+            initDataByObject(org_data, charts, name, ) {
+
                 this.charts = charts;
                 this.org_data.push({
                     name: name,
@@ -122,8 +136,8 @@
                     type: "value"
                 });
 
-                Object.keys(this.series_style).forEach((v) => {
-                    item[v] = this.series_style[v];
+                Object.keys(this["series_"+charts.type]).forEach((v) => {
+                    item[v] = this.["series_"+charts.type][v];
                 })
 
                 this.series_list.push(item);
@@ -175,14 +189,14 @@
                     return
                 }
 
-                set_data = set_data.map((v)=>{
+                /* set_data = set_data.map((v)=>{
                     if(v.view >  5000){
                         v.label = {};
                         v.label.show = true;
                     }
                     return v;
-                })
-                
+                }) */
+
                 this.org_data[find_org].data = set_data;
                 this.charts = charts;
                 set_data = set_data.map((v) => {
