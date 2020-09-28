@@ -15,13 +15,15 @@
             this.$refs.bar.setToolTip('axis',function (params) {
                         var string =''
                         for (var x in params) {
-                          if(params[x].seriesName == "iw"){
-                              string += "链接:" + params[x].data.url + '<br/>' +
-                                  /* "标题:" + params[x].data.title + '<br/>' + */
-                                  "播放量:" + params[x].data.value + '<br/>'   ;
-                          }else if(params[x].seriesName == "temp"){
-                              string += "每小时增长量:" + params[x].data.value;
-                          }
+                            if(params[x].data.url){
+                                 string += "链接:" + params[x].data.url + '<br/>'
+                            }
+                            if(params[x].data.view){
+                                 string += "播放量:" + params[x].data.view + '<br/>' 
+                            }
+                            if(params[x].data.hour_view){
+                                 string += "每小时增长量:" + params[x].data.hour_view+ '<br/>' ;
+                            }
                         }
                         return string;
                     });
@@ -74,24 +76,36 @@
                             },'line')  */                             
                         }
                     },
-                    /* 
-                myTool5:{
+                myTool7:{
                     show:true,
-                    title:'过滤1w以下数据(月数据)',
+                    title:'样式更改',
                     icon:"path://M735.085714 796.233143c0-15.579429 12.726857-28.818286 28.891429-28.818286h230.4a29.257143 29.257143 0 0 1 28.818286 28.818286 28.891429 28.891429 0 0 1-28.745143 28.818286h-230.473143a29.257143 29.257143 0 0 1-28.818286-28.818286z m0-127.926857c0-15.506286 12.726857-28.745143 28.891429-28.745143h230.4a29.257143 29.257143 0 0 1 28.818286 28.745143 28.891429 28.891429 0 0 1-28.745143 28.818285h-230.473143a29.257143 29.257143 0 0 1-28.818286-28.818285z m28.891429-156.672h230.4a29.257143 29.257143 0 0 1 28.818286 28.818285 28.891429 28.891429 0 0 1-28.745143 28.818286h-230.473143a29.257143 29.257143 0 0 1-28.818286-28.818286 29.257143 29.257143 0 0 1 28.818286-28.818285zM901.632 0c50.176 0 122.148571 49.005714 121.051429 127.926857 1.097143 35.693714-13.897143 66.267429-42.642286 96.768-216.064 189.586286-300.178286 227.620571-306.468572 285.257143-5.266286 45.494857-1.828571 472.356571-2.925714 478.134857a39.497143 39.497143 0 0 1-5.778286 22.454857c-18.432 18.432-37.449143 12.141714-47.250285 4.022857-72.045714-58.733714-232.740571-189.513143-251.172572-228.132571-21.357714-41.472-13.238857-126.756571-13.238857-276.48 0-34.084571-253.513143-235.154286-308.297143-285.257143C31.744 210.285714 0 181.540571 0 128 0 49.590857 63.926857 0 134.802286 0h766.829714zM76.068571 164.790857c1.682286 2.340571 4.022857 5.12 6.875429 8.045714l8.630857 8.630858-3.437714-3.437715a9235.017143 9235.017143 0 0 0 147.529143 125.074286l14.921143 12.653714c134.290286 115.2 167.131429 147.456 167.131428 194.706286 0 27.648 0 51.273143-0.585143 88.137143-1.755429 114.102857 0 145.773714 8.045715 161.353143 3.437714 6.875429 47.835429 49.517714 108.324571 101.961143l17.261714 14.409142c32.914286 27.648 57.051429 54.125714 57.051429 51.273143v-179.785143c0-139.995429 0.585143-221.184 3.437714-244.297142 1.755429-13.165714 5.193143-25.892571 10.386286-38.034286 15.579429-35.108571 40.96-59.245714 105.472-111.689143l89.234286-72.045714c40.374857-34.596571 81.261714-69.12 121.636571-104.886857l-4.608 4.096c19.017143-20.187429 25.892571-35.181714 25.307429-53.613715 0.585143-33.426286-32.182857-63.341714-57.051429-63.341714H134.802286c-41.472 0-70.875429 26.477714-70.875429 63.926857 0 14.994286 4.022857 25.892571 12.141714 36.864z",
                     onclick:()=>{
-                           this.sortData("down");                                  
+                          if(this.theme == 'default'){
+                              this.$refs.bar.setSeriesStyle("iw","bar_pink");
+                              this.$refs.bar.setChartStyle("chart_pink"); 
+                              this.theme = 'pink';
+                          }else if(this.theme == 'pink'){
+                              this.$refs.bar.setSeriesStyle("iw","bar_blue");
+                              this.$refs.bar.setChartStyle("chart_blue"); 
+                              this.theme = 'blue';
+                              
+                          }else if(this.theme == "blue"){
+                              this.$refs.bar.setSeriesStyle("iw","bar_default");
+                              this.$refs.bar.setChartStyle("chart_default"); 
+                              this.theme = 'default';
+                          }                   
                         }
-                    }, */
+                    }, 
             });
-            this.initData([]);
             this.ws_int();
         },
         data(){
             return{
                 day:[],
                 month:[],
-                show_list_name:""
+                show_list_name:"",
+                theme:"default"
             }
         },
         computed:{
@@ -102,7 +116,8 @@
                          var now_time =+ new Date();
                          var upload_time =+ new Date(v.time);
                          var time_hour = (now_time - upload_time)/(1000*60*60);
-                         v.view = Math.floor(v.view/time_hour); 
+                         //v.view = Math.floor(v.view/time_hour); 
+                         v.hour_view = Math.floor(v.view/time_hour); 
                          return v;
                      })
                 }
@@ -142,7 +157,7 @@
                 if(list_data.name == "init"){
                     this.month = list_data.month.reverse();
                     this.day = list_data.day.reverse();
-                    this.getDay();   
+                    this.initData(this.day);   
                 }
             },
             ws_close() {
@@ -174,9 +189,15 @@
             getHourUp(func){
                this.show_list_name = "HourUp";
                if(func){
-                   this.setData(this.hour_up.filter(func));
+                   this.$refs.bar.setDataByObject(this.hour_up.filter(func), {
+                       x: "time",
+                       y: 'hour_view'
+                   }, 'iw');
                }else{
-                   this.setData(this.hour_up);   
+                   this.$refs.bar.setDataByObject(this.hour_up, {
+                       x: "time",
+                       y: 'hour_view'
+                   }, 'iw');
                }
             },
             setData(set_data) {
