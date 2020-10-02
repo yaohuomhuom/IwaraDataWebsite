@@ -12,7 +12,7 @@ var replace = function(name, data) {
 var read = function(name) {
     try {
         if (!fs.existsSync(path.join(__dirname, "../db/" + name + ".json"))) {
-            replace(name, []);
+            create(name, []);
         }
         var jsonstrfs = fs.readFileSync(path.join(__dirname, "../db/" + name + ".json"), "utf8");
         return JSON.parse(jsonstrfs)
@@ -20,8 +20,15 @@ var read = function(name) {
         console.error(e);
     }
 }
-
+var create =function(name){
+	 fs.writeFileSync(path.join(__dirname, "../db/"+name+".json"),"[]",'utf8',function(err) {
+	    if (err) {
+	       console.error(err);
+	    }
+	 }); 
+ }
 module.exports = {
     read,
-    replace
+    replace,
+    create
 }

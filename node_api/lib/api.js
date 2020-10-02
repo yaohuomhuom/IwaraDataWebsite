@@ -5,30 +5,34 @@ var {
 	replace
 } = require("./file.js")
 const cheerio = require('cheerio');
-var getDataByTime = async function(time,file_name) {
+const ProgressBar = require("./slog.js")
+var getDataByTime = async function(time,file_name,line_count) {
 	var url = "/search?f%5B0%5D=created%3A" + time + "&f%5B1%5D=type%3Avideo";
 	var gl_data = [];
-	console.log("获取页数中。。。。")
+	//console.log("获取页数中。。。。")
 	var iz_result = await iz.get(url);
 	if (!iz_result || !iz_result.data) {
-		console.log("请求失败,请检查网络");
+		//console.log("请求失败,请检查网络");
 		return;
 	}
 	var $ = cheerio.load(iz_result.data);
-	var last_page = parseInt($('.pager-last.last').find("a").attr("href").split("=").pop());
-	console.log("页数为" + last_page)
-	for (var page = 0; page <= last_page; page++) {
-		console.log("第" + page + "页处理中")
+	var last_page = $('.pager-last.last').find("a").attr("href");
+    var pageinit = last_page?parseInt(last_page.split("=").pop()):0;
+	//console.log("页数为" + pageinit)
+    var pb = new ProgressBar("查找日期："+file_name, pageinit+1,line_count   );
+	for (var page = 0; page <= pageinit; page++) {
+		//console.log("第" + page + "页处理中")
+         pb.render({ completed: page, total: pageinit+1 });
 		try {
 			iz_result = await iz.get(url + "&page=" + page);
 		} catch (e) {
 			if (e.code != 'ECONNABORTED') {
-				console.log(e);
+				//console.log(e);
 			}
 		}
 
 		if (!iz_result || !iz_result.data) {
-			console.log("请求失败,请检查网络");
+			//console.log("请求失败,请检查网络");
 			return;
 		}
 		$ = cheerio.load(iz_result.data);
@@ -43,7 +47,7 @@ var getDataByTime = async function(time,file_name) {
             }else{
                 var img_url = ""
             }
-			console.log(time + "  " + view);
+			//console.log(time + "  " + view);
 			gl_data.push({
 				"title":title,
 				'auth':auth,
@@ -53,8 +57,8 @@ var getDataByTime = async function(time,file_name) {
 				"view": parseInt(view)
 			});
 		});
-		
-		console.log("第" + page + "页处理完成");
+		pb.render({ completed: page+1, total: pageinit+1 });
+		//console.log("第" + page + "页处理完成");
 	}
 	replace(file_name,gl_data);
 	return gl_data;

@@ -4,7 +4,7 @@ const tunnelProxy = tunnel.httpsOverHttp({
     proxy: {
         host: '127.0.0.1',
         port: '1081',
-    },
+    }
 });
 var iz = axios.create(
 {	 baseURL:"https://ecchi.iwara.tv",
@@ -26,13 +26,13 @@ iz.interceptors.response.use(undefined, function axiosRetryInterceptor(err) {
     // Check if we've maxed out the total number of retries
     if(config.__retryCount >= config.retry) {
         // Reject with the error
-        console.log(err)
+        //console.log(err)
         return Promise.reject(err);
     }
     
     // Increase the retry count
     config.__retryCount += 1;
-    console.log("请求重试次数:"+config.__retryCount)
+   //console.log("请求重试次数:"+config.__retryCount)
     
     // Create new promise to handle exponential backoff
     var backoff = new Promise(function(resolve) {

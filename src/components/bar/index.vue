@@ -112,7 +112,7 @@
                 });
                 this.setDataByObject(this.org_data[find_org_index].data, this.charts, name);
             },
-            initDataByObject(org_data, charts,name,style_name) {
+            initDataByObject(org_data, charts,name) {
                 this.charts = charts;
                 this.org_data.push({
                     name: name,
@@ -217,9 +217,9 @@
                 this.charts_style.tooltip.trigger = trigger;
                 this.charts_style.tooltip.formatter = formatter;
             },
-            setToolBox(feature) {
+            setToolBox(toolbox) {
                 this.charts_style.toolbox?"":this.charts_style.toolbox={};
-                this.charts_style.toolbox.feature = feature;
+                this.charts_style.toolbox = toolbox;
             },
             setChartStyle(charts_style){
                 if(bar_style[charts_style]){
